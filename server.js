@@ -108,4 +108,8 @@ const server = http.createServer((req, res) => {
 server.listen(PORT, () => {
   console.log('MIPC local site running:  http://localhost:' + PORT + '/');
   if (GATEWAY) {
-    console.log('Proxying /ccm/
+    console.log('Proxying /ccm/* /cmipcgw/* /ccms/* /cpms/* /dcm/* to ' + GATEWAY);
+  } else {
+    console.log('Gateway proxy disabled (MIPC_GW empty).');
+  }
+});
