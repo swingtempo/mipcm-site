@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="/xsl/ccm_pic_get_ack.xsl"?>
+<message>
+	<type>ccm_pic_get_ack</type>
+	<from>270532608</from>
+	<from_handle>633545308</from_handle>
+	<to>0</to>
+	<to_handle>3790</to_handle>
+	<data>
+		<ccm_pic_get_ack>
+			<ret>
+				<code>Receiver</code>
+				<sub>ccm.system.err</sub>
+				<reason>ccm.system.err</reason>
+				<desc></desc>
+			</ret>
+			<frame></frame>
+			<pic_type>0</pic_type>
+			<encode_type>0</encode_type>
+		</ccm_pic_get_ack>
+	</data>
+</message>

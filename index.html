@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html" charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>MIPC</title>
+  <style type="text/css">
+    html, body, iframe {
+      background: #fff;
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      position: relative;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <iframe id="main_ifr" src="app/index.html?m=www.mipcm.com"></iframe>
+  <script type="text/javascript">
+    // Local entry page that mirrors www.mipcm.com:
+    // the real site shell fetches a "signal server" address, then loads the
+    // versioned app package in an iframe. Here the app is served from ./app/
+    // instead. The original shell is saved in originals/mipcm.com-shell.html.
+    window.addEventListener('message', function (e) {
+      if (e.data && e.data.pageTitle) { document.title = e.data.pageTitle }
+      if (e.data && e.data.sendEvalFunc) { try { eval(e.data.sendEvalFunc) } catch (err) {} }
+    }, false);
+  </script>
+</body>
+</html>

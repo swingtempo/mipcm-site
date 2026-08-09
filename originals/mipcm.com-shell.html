@@ -1,0 +1,198 @@
+<!-- version v10.11.2.2311291533 -->
+<html>
+
+<head>
+  <meta http-equiv="content-type" content="text/html" charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <script type="text/javascript">
+
+    if (location.href.indexOf("f=app") > -1) {
+      document.write("<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'/>")
+    }
+
+    var g_href = window.location.href;
+    var g_hostname = window.location.hostname;
+    var g_signal_server = null;
+    var g_signal_server_array = [];
+    var g_entry_server_ack_data = null;
+    var g_appid = null;
+    var g_entry_server_url_path = null;
+    var g_iframe_url_path = null;
+    var g_flag_https = ("https:" === window.location.protocol) ? true : false;
+    var g_protocol = g_flag_https ? "https" : "http";
+    var g_flag_force_https = (g_hostname.indexOf("vimtag.com") > -1 )|| ( g_hostname.indexOf("ebitcam.com") > -1 )|| ( g_hostname.indexOf("fujikam.com") > -1);
+    var g_hostisip = isIPAddress(g_hostname);
+
+    function isIPAddress(str) {
+      var ipv4Pattern = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
+      if (ipv4Pattern.test(str)) {
+        return true;
+      }
+
+      return false;
+    }
+
+    function parseUrlParam(url) {
+      var args, query, pairs;
+      args = new Object();
+      query = url.search.substring(1);
+      pairs = query.split("&");
+      for (var i = 0; i < pairs.length; i++) {
+        var pos = pairs[i].indexOf('=');
+        if (pos === -1) {
+          continue;
+        }
+        var argname = pairs[i].substring(0, pos);
+        var value = pairs[i].substring(pos + 1);
+        args[argname] = unescape(value);
+      }
+      return args;
+    }
+
+    function body_onload() {
+      var s, temp, tp = null, request;
+      var param = parseUrlParam(window.location);
+
+      if (g_flag_https == false && g_flag_force_https == true) {
+        /* Redirect to htts for special domain */
+        window.location.href = window.location.href.replace("http:", "https:");
+        return;
+      }
+
+      if (g_href.indexOf("m=") > -1) {
+        g_hostname = param.m;
+      }
+
+      if (g_hostname.split(".").length === 2) {
+        /* Insert www if needed */
+        g_hostname = "www." + g_hostname;
+      }
+
+      g_appid = g_hostname;
+      if (g_appid.split(".").length === 3) {
+        /* Calculate appid by hostname */
+        g_appid = g_appid.split(".");
+        g_appid.shift();
+        g_appid = g_appid.join(".");
+      }
+
+      g_entry_server_url_path = "/cmipcgw/cmipcgw_get_req.js?handle=" + Math.floor(Math.random() * 10000) + "&dclient=1&dclient_param__x_countz_=1&dclient_param=1&dclient_param_name=appid&dclient_param_value=" + g_appid;
+      if (g_href.indexOf('apply_ip=') > -1) {
+        g_entry_server_url_path += '&dclient_apply_ip=' + param.apply_ip;
+      }
+
+      /* Query signal server address */
+      s = document.createElement("script");
+      s.setAttribute("type", "text/javascript");
+      s.setAttribute("src", g_protocol + "://" + g_hostname + g_entry_server_url_path);
+      document.getElementsByTagName('head').item(0).appendChild(s)
+    }
+
+    function main_iframe_onload() {
+      document.getElementById('main_ifr').contentWindow.postMessage({
+        signalServer: g_signal_server_array,
+        host: g_hostname,
+        browserHref: g_href,
+        cmipcgwGetData: g_entry_server_ack_data
+      }, '*')
+    }
+
+    function calculate_https_url(http_url) {
+      const map = {
+        'http://45.120.103.34:7080': 'https://wsbgp12.fujikam.com:7447',
+        'http://45.120.103.34:4080': 'https://wsbgp12.fujikam.com:4447',
+        'http://45.120.103.34:3080': 'https://wsbgp12.fujikam.com:3447',
+        'http://45.120.103.35:7080': 'https://wsbgp13.fujikam.com:7447',
+        'http://45.120.103.35:4080': 'https://wsbgp13.fujikam.com:4447',
+        'http://45.120.103.35:3080': 'https://wsbgp13.fujikam.com:3447',
+        'http://45.120.103.36:7080': 'https://wsbgp14.fujikam.com:7447',
+        'http://45.120.103.36:4080': 'https://wsbgp14.fujikam.com:4447',
+        'http://45.120.103.36:3080': 'https://wsbgp14.fujikam.com:3447',
+      };
+
+      return map[http_url] || 'https://ovca12.vimtag.com:7446';
+    }
+
+    function message(obj) {
+      if (obj && obj.type === "cmipcgw_get_ack") {
+        ack_data = obj.data;
+        g_entry_server_ack_data = ack_data;
+        if (ack_data && ack_data.result == "" && ack_data.server.signal && ack_data.server.signal[0]) {
+          /* Remove ccm string of signale address */
+          if ( ack_data.server.signal[0].indexOf("/ccm") > -1 ) {
+            ack_data.server.signal[0] = ack_data.server.signal[0].slice(0, -4);
+          }
+
+          /* Calc signal address */
+          g_signal_server = ack_data.server.signal[0];
+          if (g_flag_https == true) {
+            var flag_have_https_signal = false;
+            for ( i = 0; i < ack_data.server.signal.length; i++) {
+              if (ack_data.server.signal[i].indexOf('https') !== -1) {
+                flag_have_https_signal = true;
+                g_signal_server = ack_data.server.signal[i];
+                break;
+              }
+            }
+
+            if (flag_have_https_signal != true) {
+              g_signal_server = calculate_https_url(g_signal_server);
+            }
+            g_entry_server_ack_data.server.signal[2] = g_signal_server;
+          }
+
+          /* Load iframe data */
+          g_signal_server_array = g_entry_server_ack_data.server.signal;
+          g_iframe_url_path = g_signal_server + ( g_hostisip?"/dcm/static/version_control/index.htm":"/dcm/static/version_control_v2/index.htm");
+          document.body.innerHTML = "<iframe id='main_ifr' onload='main_iframe_onload()' src='" + g_iframe_url_path + "'></iframe>"
+
+          /* Inser comment to fix the bug about device config.
+          sOzMaj5SfoGG36Geb9Z8GH1QytV3Q6k8RVSYotBAXQT4F3TvGJKga78306bQRNXmuFWtv7lrcWTLmjaUhqHYwylPYxeMynXmIgSy
+          Kr7EmCvdb9B7j38McG7Wzteq146fuPM7NZkyGkfvXDF3HUYU6ySvHIreDC5HSP0IQ00IY53lQOP3AEA6eKcXeF7OykTvPZ9U30Iz
+AORtln0dWtZREzFxGLQmKNKNp6MyWcNFUMvJ8Z4NOzcTV6ChgdJ1GNo18mVlLaoZO4Vv0vJk5HxOtaRddlh3RH1n2VRFYptr0qhD
+7G7xJjkbmi6yP1ezOmqO3TWLA6wOfUSyum83OEvAq9v0stHcAAiCzLlEWAlyqoFrdHrOWpbV7o8rpeEFXPznQRxMpoBHBqm2xdQO
+qrOTqMwxak6PpBOVK1BxCFDsNoOldOzw8AnvP4nQ0zKji5Jk8ccv2UAxsPpO04z9wOteiOg4YX5skkWQIAgDv49s0THEvrAWvZ8O
+QCJAmbsgTScVnuHp8LhyImROBGWJ9rYjRU9eAieb2zXkRvtlIhnBGAYiXiRE8mqOj0OcCn78kB40RntyIFyeWZGwRJ7ire4GvTDv
+6rwHibII9b0LnxAi71tQp5vm9tCqhKREV31Cxfv1vaBd01RoZtBmYQwXa9p4UGukOx2LhnzsMjZS436B00yYssVNdRNCihD0YyR2
+Z6y0DJWPMJroWix8fU35cBBGTBYimvpEbnCPFIKuEUfYubq5MSx30jPyZMhmnGrFmeD4mnmXf1p6n4hcXUbvsScct0QUX8abMAQ7
+T77lVDad2pRdivfwLgomTjTeRtbNR8sVYRJpTjplHOFFl1lQKIcWLfqnPE19jJlpjgVymxxvu6hE906mmrmWQefThhilJ28JGPgq
+3KzioTVbX1OPU1LTDGdyjKR95vxsTifCpiebVJgqMAkoBb5yPCX7dMlPWFIoiFCMVMDBed6JH58OyLP3odC4LbYsbNicCt7FkNsN
+w2HNsqkCd0pi1XI8aijPGPgvLfmLoagLlg74iN9WGJ4PMig6ROM4magwUtEVKsQSDDHq5qzTkEaZMuVtjfHw9OjPQ52hOLLrcGw1
+OpCn2eoEBwEuq4VXoXXClrm9RxIE8Zdh2xLIH2ouUDqZsyF7rZwjqp3AjyJPKPGAxsOEbikEkQR9V2hYyYeuayD5qqOssP9RL61X
+K1iAF5VupOyQPliZwKepgSbwNtrtfO4i9tZfsFKwDUN8vZs5E0aKBRa2pMBWmMy71YfizQcSCCTft7rjaYkqqKFbw2hZN5kLaHYv
+4lJZCEAcGDZLVxZjmTWEmaNIwWHbWiULUe1kuYz7z2CtEdSPFXlPIgQIwXUSitda15bVhfSwNwi1bsD6g1FgYu4bNLuWXPmwqqTC
+xiArGVGIOh7eQLeZR4uDyDfohOLgU3ogRmQuxp0O0aFzi3aed1InjW3YRqnVbzFv8e588zmMiZe6yvLQuCCrxfeA1pnhggqzx5Cr
+BKWfjyg5bE5hoNmZgvMplv69GasFsTgK6HaV1cVYYkPWWstnRqksns9ZYrLwtApQ0XRKKfG3nM3qXwvjGqUVRL7SQto8g7K73ZxO
+eM87SuF4fxWNibUEqOVISMXTpijxB13JZpa3b7r2KkIpCPDhYDh2K1ZCl6dqTGHRWQkt40EeLQlPHk3GgE0z2IU23NudHh6C
+*/
+        }
+      }
+    }
+    window.addEventListener('message', function (e) {
+      document.title = e.data.pageTitle
+      eval(e.data.sendEvalFunc)
+    }, false)
+  </script>
+
+  <style type="text/css">
+    html,
+    body,
+    #iframe_div,
+    iframe {
+      background: #fff;
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      /*overflow:hidden; */
+      position: relative;
+      border: 0;
+    }
+  </style>
+  <title></title>
+</head>
+
+<body onload="body_onload()">
+</body>
+
+</html>

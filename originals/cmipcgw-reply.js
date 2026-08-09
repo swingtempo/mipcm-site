@@ -1,0 +1,4 @@
+/* Captured live reply from https://www.mipcm.com/cmipcgw/cmipcgw_get_req.js
+   (signal-server lookup). Used by the real entry shell to find where the app
+   package is served from. */
+message({type:"cmipcgw_get_ack",from:272629760,from_handle:923240697,data:{result:"",server:{signal:["http://54.39.107.85:7080/ccm","binnet://54.39.107.85:7001","https://ovca22.mipcm.com:7443"],debug:"telnet://54.39.107.85:7024",license:"binnet://47.112.212.108:12761",ping:"54.39.107.85",ntp:["162.159.200.123"],param:[{name:"f_log",value:"1"},{name:"flog",value:"all"},{name:"f_scene",value:"1"},{name:"f_rfdev",value:"1"},{name:"f_cld",value:"1"},{name:"f_web",value:"1"},{name:"sc.iot",value:"1"},{name:"sc.alexa_link",value:"enable"},{name:"sc.netcheck.enable",value:"1"},{name:"sc.sndlogver",value:"v2"},{name:"f_no_about",value:"1"}]},myaddr:"174.164.210.40",myloc:"US",time:1786295296,timezone:"",ex:""}});
