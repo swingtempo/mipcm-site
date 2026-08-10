@@ -3,9 +3,9 @@
 <message>
 	<type>ccm_pic_get_ack</type>
 	<from>270532608</from>
-	<from_handle>633545967</from_handle>
+	<from_handle>635836499</from_handle>
 	<to>0</to>
-	<to_handle>3795</to_handle>
+	<to_handle>6850</to_handle>
 	<data>
 		<ccm_pic_get_ack>
 			<ret>
